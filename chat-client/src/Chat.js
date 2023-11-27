@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import socketIOClient from 'socket.io-client';
 import { TextField, IconButton, Box, InputAdornment, Paper, Typography, Grid, Button } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import ImageIcon from '@mui/icons-material/Image';
-import DownloadIcon from '@mui/icons-material/ArrowDownward';
 import CheckIcon from '@mui/icons-material/Check';  
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles';
@@ -395,7 +393,7 @@ const RenderContextMenu = () => (
           download
           onClick={() => setDownloadedImages({ ...downloadedImages, [msg.URL]: true })}
         >
-          <DownloadIcon />
+        <span class="material-symbols-outlined">download</span>
         </IconButton>
       ) : msg.URL && downloadedImages[msg.URL] ? (
         <IconButton disabled>
@@ -414,7 +412,7 @@ const RenderContextMenu = () => (
           rel="noopener noreferrer"
           download
         >
-          <DownloadIcon />
+        <span class="material-symbols-outlined">download</span>
         </Button>
       )}
     </div>
@@ -449,7 +447,7 @@ const RenderContextMenu = () => (
               />
               <label htmlFor="icon-button-file">
                 <IconButton color="primary" component="span">
-                  <ImageIcon />
+                <span class="material-symbols-outlined">upload_file</span>
                 </IconButton>
               </label>
             </InputAdornment>
