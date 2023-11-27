@@ -32,12 +32,8 @@ const useStyles = makeStyles((theme) => ({
     maxHeight: 'calc(90vh - 120px)', // Adjust as needed
   },
   messageRow: {
-    '&:hover $timestamp': {
-      opacity: 1,
-      visibility: 'visible', // Show the timestamp on hover
-    },
-    position: 'relative', // Relative position for the timestamp's absolute positioning
-    padding: theme.spacing(1),
+    position: 'relative',
+    paddingTop: theme.spacing(1),
   },
   messageBubble: {
     position: 'relative',
@@ -60,6 +56,21 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 'auto',
     textAlign: 'left',
   },
+  replyOrigin: {
+    color: 'lightgrey',
+    fontStyle: 'italic',
+    fontSize: '0.8rem',
+    wordWrap: 'break-word',
+    maxWidth: '80%', // Limit the width
+    margin: '0 auto', // Center it
+    position: 'relative', // For the arrow positioning
+  },
+  
+  iconRotated: {
+    transform: 'rotate(-45deg)',
+  },
+  
+  
   typingIndicator: {
     fontStyle: 'italic',
     color: '#bbb',
@@ -74,7 +85,7 @@ const useStyles = makeStyles((theme) => ({
   sendButton: {
     color: theme.palette.primary.main,
   },
-   timestamp: {
+  timestamp: {
     visibility: 'hidden', // Hide the timestamp by default
     position: 'absolute',
     bottom: theme.spacing(1),
@@ -82,6 +93,32 @@ const useStyles = makeStyles((theme) => ({
     transition: 'visibility 0.3s ease-in-out',
     fontSize: '0.3rem',
     color: 'lightgrey',
+  },
+  curvedConnector: {
+    position: 'absolute',
+    left: '20%', // Adjust based on your layout
+    bottom: '30px', // Adjust to align with the new message
+    height: '20px',
+    width: '20px',
+    '&:after': {
+      content: '""',
+      position: 'absolute',
+      width: '100%',
+      height: '2px',
+      backgroundColor: 'lightgrey',
+      borderRadius: '20px 20px 0 0',
+      left: '50%',
+      bottom: '0',
+    },
+    '&:before': {
+      content: '""',
+      position: 'absolute',
+      left: '50%',
+      bottom: '-10px',
+      borderWidth: '5px',
+      borderStyle: 'solid',
+      borderColor: 'lightgrey transparent transparent transparent',
+    }
   },
 }));
 
@@ -309,120 +346,95 @@ const RenderContextMenu = () => (
   };
 
   return (
-    
     <div className={classes.chatContainer}>
       <Typography variant="h6" className={classes.header}>{username}</Typography>
       {typingUser && typingUser !== username && (
-          <Typography className={classes.typingIndicator}>
-            {`${typingUser} is typing...`}
-          </Typography>
-        )}  
+        <Typography className={classes.typingIndicator}>
+          {`${typingUser} is typing...`}
+        </Typography>
+      )}
       <Paper className={classes.messageContainer}>
-      <Grid container>
-  <RenderContextMenu />
-  {messages.map((msg, index) => (
-    <Grid key={index} item xs={12} style={{ paddingTop: theme.spacing(1) }}>
-    {msg.replyTo && (
-  <div style={{ position: 'relative', marginBottom: theme.spacing(1) }}>
-    <div style={{
-      backgroundColor: '#444', 
-      padding: theme.spacing(1), 
-      borderRadius: theme.shape.borderRadius
-    }}>
-      <Typography variant="caption" style={{ color: 'lightgrey' }}>
-        Replying to {msg.replyTo.sender === username ? "Me" : msg.replyTo.sender}: {msg.replyTo.text}
-      </Typography>
-    </div>
-    <div style={{
-      position: 'absolute',
-      left: '50%', 
-      bottom: 0, 
-      transform: 'translateX(-50%)',
-      height: '20px', 
-      width: '2px', 
-      backgroundColor: 'lightgrey'
-    }}></div>
-  </div>
-)}
-
-      <div style={{ 
-          textAlign: msg.sender === username ? 'right' : 'left', // Align based on sender
-          marginBottom: theme.spacing(1) // Space between the name and the message
-        }}>
-        <Typography 
-          variant="caption" 
-          style={{ color: 'grey' }}>
-          {msg.sender === username ? "Me" : msg.sender}
-        </Typography>
-      </div>
-      <Box 
-        className={`${classes.messageBubble} ${msg.sender === username ? classes.sentMessage : classes.receivedMessage}`}
-        onContextMenu={(e) => handleRightClick(e, msg)}
-      >
-        {msg.image ? (
-          <>
-            <img 
-              src={msg.image} 
-              alt="Uploaded" 
-              style={{ maxWidth: '60%', maxHeight: '100px' }} 
-            />
-            {msg.URL && !downloadedImages[msg.URL] ? (
-              <IconButton
-                color="primary"
-                href={msg.URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-                onClick={() => setDownloadedImages({ ...downloadedImages, [msg.URL]: true })}
+        <Grid container>
+          <RenderContextMenu />
+          {messages.map((msg, index) => (
+            <Grid key={index} item xs={12} className={classes.messageRow}>
+            <div style={{ textAlign: msg.sender === username ? 'right' : 'left' }}>
+                <div style={{ marginBottom: theme.spacing(1), display: 'inline-block' }}> {/* Added display: inline-block */}
+                  <Typography variant="caption" style={{ color: 'grey' }}>
+                    {msg.sender === username ? "Me" : msg.sender}
+                  </Typography>
+                </div>
+                {msg.replyTo && (
+                  <div className={classes.replyOrigin} style={{ display: 'inline-block' }}> {/* Added display: inline-block */}
+                    <span className={`material-icons-outlined ${classes.iconRotated}`}>reply</span>
+                    <Typography variant="caption" style={{ color: 'lightgrey' }}>
+                      {msg.replyTo.sender === username ? "Me" : msg.replyTo.sender}: {msg.replyTo.text}
+                    </Typography>
+                  </div>
+                )}
+            </div>
+             
+              
+              <Box 
+                className={`${classes.messageBubble} ${msg.sender === username ? classes.sentMessage : classes.receivedMessage}`}
+                onContextMenu={(e) => handleRightClick(e, msg)}
               >
-                <DownloadIcon />
-              </IconButton>
-            ) : msg.URL && downloadedImages[msg.URL] ? (
-              <IconButton disabled>
-                <CheckIcon />
-              </IconButton>
-            ) : null}
-          </>
-        ) : msg.fileType === 'file' ? (
-          <div>
-            <Typography>{msg.text}</Typography>
-            {msg.URL && (
-              <Button
-                color="primary"
-                href={msg.URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-              >
-                <DownloadIcon />
-              </Button>
-            )}
-          </div>
-        ) : (
-          <Typography>{msg.text}</Typography>
-        )}
-        <Typography className={classes.timestamp}>
-          {formatTimestamp(msg.timestamp)}
-        </Typography>
-      </Box>
-    </Grid>
-  ))}
-</Grid>
-
-<ReplyView />
+                {msg.image ? (
+                  <>
+                    <img 
+                      src={msg.image} 
+                      alt="Uploaded" 
+                      style={{ maxWidth: '60%', maxHeight: '100px' }} 
+                    />
+                    {msg.URL && !downloadedImages[msg.URL] ? (
+                      <IconButton
+                        color="primary"
+                        href={msg.URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        onClick={() => setDownloadedImages({ ...downloadedImages, [msg.URL]: true })}
+                      >
+                        <DownloadIcon />
+                      </IconButton>
+                    ) : msg.URL && downloadedImages[msg.URL] ? (
+                      <IconButton disabled>
+                        <CheckIcon />
+                      </IconButton>
+                    ) : null}
+                  </>
+                ) : msg.fileType === 'file' ? (
+                  <div>
+                    <Typography>{msg.text}</Typography>
+                    {msg.URL && (
+                      <Button
+                        color="primary"
+                        href={msg.URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                      >
+                        <DownloadIcon />
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <Typography>{msg.text}</Typography>
+                )}
+                <Typography className={classes.timestamp}>
+                  {formatTimestamp(msg.timestamp)}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+        <ReplyView />
       </Paper>
       <TextField
         label="Type a message"
         variant="outlined"
         value={message}
-        onChange={(e) => {
-          setMessage(e.target.value);
-          if (e.target.value) {
-            socket.emit('typing', username);
-          } else {
-            socket.emit('stopTyping');
-          }
-        }}
+        onChange={(e) => setMessage(e.target.value)}
         className={classes.inputField}
         InputProps={{
           startAdornment: (

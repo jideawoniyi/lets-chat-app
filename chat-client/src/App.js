@@ -35,7 +35,7 @@ const App = () => {
           <Login onLogin={(username) => handleLogin(username, 'sender')} userType="Sender" />
         ) : (
           <>
-            <h2 style={{ textAlign: 'left' }}>{`Sender: ${usernames.sender}`}</h2>
+            {/* <h2 style={{ textAlign: 'left' }}>{`Sender: ${usernames.sender}`}</h2> */}
             <Chat username={usernames.sender} userType="Sender" />
           </>
         )}
@@ -45,7 +45,7 @@ const App = () => {
           <Login onLogin={(username) => handleLogin(username, 'receiver')} userType="Receiver" />
         ) : (
           <>
-            <h2 style={{ textAlign: 'left' }}>{`Receiver: ${usernames.receiver}`}</h2>
+            {/* <h2 style={{ textAlign: 'left' }}>{`Receiver: ${usernames.receiver}`}</h2> */}
             <Chat username={usernames.receiver} userType="Receiver" />
           </>
         )}
