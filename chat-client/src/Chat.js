@@ -375,56 +375,57 @@ const RenderContextMenu = () => (
             </div>
              
               
-              <Box 
-                className={`${classes.messageBubble} ${msg.sender === username ? classes.sentMessage : classes.receivedMessage}`}
-                onContextMenu={(e) => handleRightClick(e, msg)}
-              >
-                {msg.image ? (
-                  <>
-                    <img 
-                      src={msg.image} 
-                      alt="Uploaded" 
-                      style={{ maxWidth: '60%', maxHeight: '100px' }} 
-                    />
-                    {msg.URL && !downloadedImages[msg.URL] ? (
-                      <IconButton
-                        color="primary"
-                        href={msg.URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                        onClick={() => setDownloadedImages({ ...downloadedImages, [msg.URL]: true })}
-                      >
-                        <DownloadIcon />
-                      </IconButton>
-                    ) : msg.URL && downloadedImages[msg.URL] ? (
-                      <IconButton disabled>
-                        <CheckIcon />
-                      </IconButton>
-                    ) : null}
-                  </>
-                ) : msg.fileType === 'file' ? (
-                  <div>
-                    <Typography>{msg.text}</Typography>
-                    {msg.URL && (
-                      <Button
-                        color="primary"
-                        href={msg.URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                      >
-                        <DownloadIcon />
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <Typography>{msg.text}</Typography>
-                )}
-                <Typography className={classes.timestamp}>
-                  {formatTimestamp(msg.timestamp)}
-                </Typography>
-              </Box>
+            <Box 
+  className={`${classes.messageBubble} ${msg.sender === username ? classes.sentMessage : classes.receivedMessage}`}
+  onContextMenu={(e) => handleRightClick(e, msg)}
+>
+  {msg.image ? (
+    <>
+      <img 
+        src={msg.image} 
+        alt="Uploaded" 
+        style={{ maxWidth: '60%', maxHeight: '100px' }} 
+      />
+      {msg.URL && !downloadedImages[msg.URL] ? (
+        <IconButton
+          color="primary"
+          href={msg.URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          download
+          onClick={() => setDownloadedImages({ ...downloadedImages, [msg.URL]: true })}
+        >
+          <DownloadIcon />
+        </IconButton>
+      ) : msg.URL && downloadedImages[msg.URL] ? (
+        <IconButton disabled>
+          <CheckIcon />
+        </IconButton>
+      ) : null}
+    </>
+  ) : msg.fileType === 'file' ? (
+    <div>
+      <Typography variant="caption">{msg.text}</Typography> 
+      {msg.URL && (
+        <Button
+          color="primary"
+          href={msg.URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          download
+        >
+          <DownloadIcon />
+        </Button>
+      )}
+    </div>
+  ) : (
+    <Typography variant="caption">{msg.text}</Typography> 
+  )}
+  <Typography className={classes.timestamp}>
+    {formatTimestamp(msg.timestamp)}
+  </Typography>
+</Box>
+
             </Grid>
           ))}
         </Grid>
