@@ -32,7 +32,12 @@ const useStyles = makeStyles((theme) => ({
   messageRow: {
     position: 'relative',
     paddingTop: theme.spacing(1),
-  },
+    '&:hover $timestamp': { // Add hover effect to show timestamp
+      visibility: 'visible',
+    },
+  },  
+
+
   messageBubble: {
     position: 'relative',
     display: 'flex',
@@ -48,12 +53,25 @@ const useStyles = makeStyles((theme) => ({
     color: '#fff',
     marginLeft: 'auto',
     textAlign: 'right',
+    position: 'relative', // Add relative positioning for the absolute timestamp
   },
   receivedMessage: {
     backgroundColor: '#2e2e2e',
     marginRight: 'auto',
     textAlign: 'left',
+    position: 'relative', // Add relative positioning for the absolute timestamp
   },
+  timestamp: {
+    color: 'lightgrey',
+    position: 'absolute',
+    bottom: '-20px',
+    right: 0,
+    left: 0,
+    backgroundColor: 'transparent', // No background color
+    padding: 0, // Remove padding if any
+    visibility: 'hidden', // Hidden by default, shown on hover
+  },
+
   replyOrigin: {
     color: 'lightgrey',
     fontStyle: 'italic',
@@ -67,7 +85,6 @@ const useStyles = makeStyles((theme) => ({
   iconRotated: {
     transform: 'rotate(-45deg)',
   },
-  
   
   typingIndicator: {
     fontStyle: 'italic',
@@ -83,40 +100,17 @@ const useStyles = makeStyles((theme) => ({
   sendButton: {
     color: theme.palette.primary.main,
   },
-  timestamp: {
-    visibility: 'hidden', // Hide the timestamp by default
-    position: 'absolute',
-    bottom: theme.spacing(1),
-    right: theme.spacing(1),
-    transition: 'visibility 0.3s ease-in-out',
-    fontSize: '0.3rem',
-    color: 'lightgrey',
+
+  typingPulse: {
+    animation: `$pulse 1.5s infinite`,
   },
-  curvedConnector: {
-    position: 'absolute',
-    left: '20%', // Adjust based on your layout
-    bottom: '30px', // Adjust to align with the new message
-    height: '20px',
-    width: '20px',
-    '&:after': {
-      content: '""',
-      position: 'absolute',
-      width: '100%',
-      height: '2px',
-      backgroundColor: 'lightgrey',
-      borderRadius: '20px 20px 0 0',
-      left: '50%',
-      bottom: '0',
+  "@keyframes pulse": {
+    "0%, 100%": {
+      opacity: 1,
     },
-    '&:before': {
-      content: '""',
-      position: 'absolute',
-      left: '50%',
-      bottom: '-10px',
-      borderWidth: '5px',
-      borderStyle: 'solid',
-      borderColor: 'lightgrey transparent transparent transparent',
-    }
+    "50%": {
+      opacity: 0.5,
+    },
   },
 }));
 
@@ -188,6 +182,14 @@ const [replyToMessage, setReplyToMessage] = useState(null);
     handleClose();
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && message.trim()) {
+      sendMessage();
+      e.preventDefault(); // Prevent the default action to avoid form submission
+    }
+  };
+  
+  
   // const exitReplyMode = () => {
   //   setReplyMode(false);
   //   setReplyToMessage(null);
@@ -346,11 +348,6 @@ const RenderContextMenu = () => (
   return (
     <div className={classes.chatContainer}>
       <Typography variant="h6" className={classes.header}>{username}</Typography>
-      {typingUser && typingUser !== username && (
-        <Typography className={classes.typingIndicator}>
-          {`${typingUser} is typing...`}
-        </Typography>
-      )}
       <Paper className={classes.messageContainer}>
         <Grid container>
           <RenderContextMenu />
@@ -372,86 +369,102 @@ const RenderContextMenu = () => (
                 )}
             </div>
              
-              
             <Box 
-  className={`${classes.messageBubble} ${msg.sender === username ? classes.sentMessage : classes.receivedMessage}`}
-  onContextMenu={(e) => handleRightClick(e, msg)}
->
-  {msg.image ? (
-    <>
-      <img 
-        src={msg.image} 
-        alt="Uploaded" 
-        style={{ maxWidth: '60%', maxHeight: '100px' }} 
-      />
-      {msg.URL && !downloadedImages[msg.URL] ? (
-        <IconButton
-          color="primary"
-          href={msg.URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          download
-          onClick={() => setDownloadedImages({ ...downloadedImages, [msg.URL]: true })}
-        >
-        <span class="material-symbols-outlined">download</span>
-        </IconButton>
-      ) : msg.URL && downloadedImages[msg.URL] ? (
-        <IconButton disabled>
-          <CheckIcon />
-        </IconButton>
-      ) : null}
-    </>
-  ) : msg.fileType === 'file' ? (
-    <div>
-      <Typography variant="caption">{msg.text}</Typography> 
-      {msg.URL && (
-        <Button
-          color="primary"
-          href={msg.URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          download
-        >
-        <span class="material-symbols-outlined">download</span>
-        </Button>
-      )}
-    </div>
-  ) : (
-    <Typography variant="caption">{msg.text}</Typography> 
-  )}
-  <Typography className={classes.timestamp}>
-    {formatTimestamp(msg.timestamp)}
-  </Typography>
-</Box>
+                      className={`${classes.messageBubble} ${msg.sender === username ? classes.sentMessage : classes.receivedMessage}`}
+                      onContextMenu={(e) => handleRightClick(e, msg)}
+                      >
+                        {msg.image ? (
+                          <>
+                            <img 
+                        src={msg.image} 
+                        alt="Uploaded" 
+                        style={{ maxWidth: '60%', maxHeight: '100px' }} 
+                      />
+                      {msg.URL && !downloadedImages[msg.URL] ? (
+                      <IconButton
+                        color="primary"
+                        href={msg.URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        onClick={() => setDownloadedImages({ ...downloadedImages, [msg.URL]: true })}
+                      >
+                      <span class="material-symbols-outlined">download</span>
+                      </IconButton>
+                      ) : msg.URL && downloadedImages[msg.URL] ? (
+                      <IconButton disabled>
+                        <CheckIcon />
+                      </IconButton>
+                      ) : null}
+                      </>
+                      ) : msg.fileType === 'file' ? (
+                      <div>
+                      <Typography variant="caption">{msg.text}</Typography> 
+                      {msg.URL && (
+                      <Button
+                        color="primary"
+                        href={msg.URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                      >
+                      <span class="material-symbols-outlined">download</span>
+                      </Button>
+                      )}
+                    </div>
+                      ) : (
+                        <Typography variant="caption">{msg.text}</Typography> 
+                      )}
+                      
+            </Box>
+                  <Typography variant="caption"
+                    className={`${classes.timestamp} ${msg.sender === username ? classes.sentMessage : classes.receivedMessage}`}
+                  >
+                    {formatTimestamp(msg.timestamp)}
+                  </Typography>
 
             </Grid>
           ))}
         </Grid>
-        <ReplyView />
+        {/* Typing Indicator */}
+      {typingUser && typingUser !== username && (
+        <Grid item xs={12} style={{ textAlign: 'left' }}>
+          <Box className={classes.messageBubble}>
+            <span className="material-icons-outlined typing-icon">chat</span>
+            <Typography variant="caption" className={classes.typingIndicator}>
+              {`${typingUser} is typing...`}
+            </Typography>
+          </Box>
+        </Grid>
+      )}
+ 
+    <ReplyView />
       </Paper>
       <TextField
         label="Type a message"
         variant="outlined"
+        fullWidth
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={handleKeyDown}
         className={classes.inputField}
         InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <input
-                accept="image/*, .pdf, .doc, .docx, .txt"
-                style={{ display: 'none' }}
-                id="icon-button-file"
-                type="file"
-                onChange={handleAttachment}
-              />
-              <label htmlFor="icon-button-file">
-                <IconButton color="primary" component="span">
-                <span class="material-symbols-outlined">upload_file</span>
-                </IconButton>
-              </label>
-            </InputAdornment>
-          ),
+        startAdornment: (
+        <InputAdornment position="start">
+        <input
+          accept="image/*, .pdf, .doc, .docx, .txt"
+          style={{ display: 'none' }}
+          id="icon-button-file"
+          type="file"
+          onChange={handleAttachment}
+        />
+        <label htmlFor="icon-button-file">
+          <IconButton color="primary" component="span" style={{ marginRight: '8px' }}> {/* Added margin here */}
+            <span className="material-icons-outlined">upload</span>
+          </IconButton>
+        </label>
+      </InputAdornment>
+    ),
           endAdornment: (
             <InputAdornment position="end">
               <IconButton onClick={sendMessage} className={classes.sendButton}>
